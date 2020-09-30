@@ -25,7 +25,7 @@
   "HideFile": ".*\\.sh|test.txt",
   # 隐藏某个名字的文件, 支持正则. 示例: 隐藏 sh 后缀的文件和名字为 test.txt 的文件.
   
-  "HideFolder": "test|testFolder",
+  "HideFolder": "",
   # 隐藏某个名字的文件夹, 支持正则.
   
   "WebDAV": true
