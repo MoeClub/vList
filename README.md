@@ -2,7 +2,7 @@
 ```
 {
   "WorkFolder": "/var/www",
-  # 展示某个目录, 示例: /var/www.
+  # 展示某个目录(唯一), 示例: /var/www.
   
   "Endpoint": "/",
   # 映射到URL目录, 默认为根目录.
