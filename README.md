@@ -43,12 +43,12 @@
 ## 快速使用
 ```
 ./vList -w "/var/www"
-./vList -w "/var/www" -bind 127.0.0.1 -port 8080
+./vList -w "/var/www" -bind 0.0.0.0 -port 8080
 ```
 
 ## 应用配置文件(如果同目录中有 config.json, 则会自动读取.)
 ```
 ./vList
-./vList -c "/配置文件绝对路径/config.json" -bind 127.0.0.1 -port 8080
+./vList -c "/配置文件绝对路径/config.json" -bind 0.0.0.0 -port 8080
 ```
 
