@@ -49,7 +49,7 @@
 ```
 ./vList -h
 ./vList -w "/var/www"
-./vList -w "/var/www" -bind 0.0.0.0 -port 8080
+./vList -q -w "/var/www" -bind 0.0.0.0 -port 8080
 ```
 
 ## 应用配置文件(如果同目录中有 config.json, 则会自动读取.)
