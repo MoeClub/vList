@@ -62,7 +62,7 @@
 ```
 ./vList -h
 ./vList -w "/var/www"
-./vList -q -w "/var/www" -bind 0.0.0.0 -port 8080
+./vList -d -w "/var/www" -bind 0.0.0.0 -port 8080
 ./vList -bind 0.0.0.0 -port 8080 -w "/var/www" -webdav=false -hide=fasle -size=true
 
 # -h 显示帮助
