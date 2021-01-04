@@ -9,7 +9,7 @@
   # 映射到URL目录, 默认为根目录.
   
   "FolderSize": false,
-  # 计算文件夹大小, 递归遍历累加. (开启可能会影响性能)
+  # 计算文件夹大小, 递归遍历累加. (开启会影响性能)
   
   "AuthItem": "user1:passwd1@/The/File/Path|user2:passwd2@/The/Folder/Path",
   # 使用 HTTP 401 加密多个目录或者文件.
@@ -50,7 +50,10 @@
 ./vList -h
 ./vList -w "/var/www"
 ./vList -q -w "/var/www" -bind 0.0.0.0 -port 8080
-./vList -bind 0.0.0.0 -port 8080 -w "/var/www" -webdav=false -hide=fasle
+./vList -bind 0.0.0.0 -port 8080 -w "/var/www" -webdav=false -hide=fasle -size=true
+
+# -h 显示帮助
+# -q 后台运行(在Windows下无效)
 ```
 
 ## 应用配置文件(如果同目录中有 config.json, 则会自动读取.)
