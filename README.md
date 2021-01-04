@@ -66,7 +66,8 @@
 ./vList -bind 0.0.0.0 -port 8080 -w "/var/www" -webdav=false -hide=fasle -size=true
 
 # -h 显示帮助
-# -q 后台运行(在Windows下无效)
+# -q 安静模式(不显示日志)
+# -d 后台运行(在Windows下无效)
 ```
 
 ## 应用配置文件
