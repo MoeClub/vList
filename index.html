@@ -39,11 +39,10 @@
     </div>
     <script src="//s0.pstatp.com/cdn/expire-1-M/??mdui/0.4.0/js/mdui.min.js,dplayer/1.25.0/DPlayer.min.js"></script>
     <script>
-    let domain = window.location.host,
+    let title = 'vList - ',
         rootPath = "{{.RootPath}}",
         currentPath = "{{.CurrentPath}}",
         rawData = "{{.RawData}}",
-        title = 'vList - ',
         $$ = mdui.JQ;
     if (currentPath === "/") {
         currentPath = "";
@@ -52,12 +51,10 @@
         pageData = JSON.parse(window.atob(rawData)),
         arrayPath = new Array(),
         arrayFloder = new Array(),
-        arryVideo = new Array(),
         arrayFile = new Array();
     for (let item in pageData) {
-        if (getFileType(decodeURIComponent(pageData[item]['name'])) == "video") {
-            arryVideo.push(decodeURIComponent(pageData[item]['name']))
-        }
+        pageData[item]["itemName"] = decodeURIComponent(pageData[item]['name']);
+        pageData[item]["type"] = getFileType(pageData[item]["itemName"]);
         if (pageData[item]['folder']) {
             arrayFloder.push(pageData[item])
         } else {
@@ -90,7 +87,7 @@
                 dataNum = 2 ** 40 * dataArray[0];
                 break;
             default:
-                dataNum = 2 ** 50 * dataArray[0]
+                dataNum = 0
         }
         return dataNum
     }
@@ -121,17 +118,18 @@
             pathSpan = document.createElement("span"),
             locPath = currentPath.trim().replace(/^\//, "").replace(/\/$/, "");
         locArray = new Array('');
-        if (nav.innerHTML.length > 0) {
-            nav.innerHTML = ''
-        }
+        nav.innerHTML = '';
         if (locPath !== "") {
+            let j = 0;
             let locPathArr = locPath.split("/"),
                 localHref = "";
-            for (let j = 0; j < locPathArr.length; j++) {
-                localHref += "/" + locPathArr[j];
-                if (j === 0 && rootPath !== "/") {
-                    continue
+            if (locPathArr.length >= 1) {
+                if (rootPath === "/" + locPathArr[0]) {
+                    j = 1;
                 }
+            }
+            for (; j < locPathArr.length; j++) {
+                localHref += "/" + locPathArr[j];
                 navTemp = `<a class="nav-a" href="//${window.location.host}${localHref}">${locPathArr[j]}</a>`;
                 locArray.push(navTemp)
             }
@@ -173,14 +171,11 @@
         let obj = document.getElementById('file-list'),
             items = arrayFloder.concat(arrayFile);
         for (let item in items) {
-            let newChild = document.createElement("div"),
-                icon = items[item]['folder'] ? 'folder_open' : 'image_aspect_ratio',
-                itemName = decodeURIComponent(items[item]['name']),
-                href = items[item]['url'];
-            let fileType = getFileType(itemName);
-            if (icon == 'image_aspect_ratio') {
-                icon = getFileIcon(fileType)
-            }
+            let newChild = document.createElement("div");
+            let itemName = items[item]['itemName'],
+                href = items[item]['url'],
+                fileType = items[item]['type'];
+            let icon = items[item]['folder'] ? 'folder_open' : getFileIcon(fileType);
             newChild.setAttribute('class', 'row file-wrapper mdui-list-item mdui-ripple');
             newChild.innerHTML = `
             <div class="file">
@@ -193,7 +188,7 @@
             </div>`;
             obj.appendChild(newChild);
             newChild.addEventListener('click',function(e){
-                if (fileType == "video") {
+                if (fileType === "video") {
                     let dplayerContainer = `
                         <div id="dplayerContainer" class="mdui-container-fluid">
                             <div align="right">
@@ -203,8 +198,8 @@
                         </div>`;
                     $$('#dplayerContainer').remove();
                     $$(newChild).after(dplayerContainer);
-                    dpOpen(href)
-                }else if(fileType == "image"){
+                    dpOpen(href);
+                }else if(fileType === "image"){
                     let imgEle = `
                         <div id="viewerContainer" onclick="$$(this).remove()">
                             <span class="overlay"></span>
@@ -212,14 +207,12 @@
                         </div>
                         `;
                     $$('#viewerContainer').remove();
-                    $$(newChild).after(imgEle)
+                    $$(newChild).after(imgEle);
                 }else{
-                    window.location.href = href
+                    window.location.href = href;
                 }
-            },false)
-            newChild.oncontextmenu = function() {
-                $$(newChild).find('a').attr('href', href)
-            }
+            },false);
+            $$(newChild).find('a').attr('href', href);
         }
     }
     function getFileType(name) {
