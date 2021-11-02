@@ -42,6 +42,7 @@
     let title = 'vList - ',
         rootPath = "{{.RootPath}}",
         currentPath = "{{.CurrentPath}}",
+        proxyPath = location.pathname.replace(currentPath,""),
         rawData = "{{.RawData}}",
         $$ = mdui.JQ;
     if (currentPath === "/") {
@@ -130,7 +131,7 @@
             }
             for (; j < locPathArr.length; j++) {
                 localHref += "/" + locPathArr[j];
-                navTemp = `<a class="nav-a" href="//${window.location.host}${localHref}">${locPathArr[j]}</a>`;
+                navTemp = `<a class="nav-a" href="//${window.location.host}${proxyPath}${localHref}">${locPathArr[j]}</a>`;
                 locArray.push(navTemp)
             }
         }
