@@ -84,6 +84,6 @@
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Range $http_range;
         proxy_no_cache $http_range;
-        proxy_pass http://127.0.0.1:5189;
+        proxy_pass http://127.0.0.1:8080;
     }
 ```
