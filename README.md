@@ -78,3 +78,12 @@
 ./vList -c "/配置文件绝对路径/config.json" -bind 0.0.0.0 -port 8080
 ```
 
+# 使用Nginx反向代理
+```
+    location ^~ /CTList {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Range $http_range;
+        proxy_no_cache $http_range;
+        proxy_pass http://127.0.0.1:5189;
+    }
+```
