@@ -80,7 +80,7 @@
 
 # 使用Nginx反向代理
 ```
-    location ^~ /CTList {
+    location ^~ /vList {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Range $http_range;
         proxy_no_cache $http_range;
