@@ -25,12 +25,12 @@
     "user": "手机号",
     "passwd": "密码",
     "rootId": "-11"
-  },
+  }
 ]
 
 ```
 
-## 目录样式文件 (index.html)[https://raw.githubusercontent.com/MoeClub/vList/master/index.html]
+## 目录样式文件 [index.html](https://raw.githubusercontent.com/MoeClub/vList/master/index.html)
 ```
 https://raw.githubusercontent.com/MoeClub/vList/master/index.html
 
