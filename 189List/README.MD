@@ -30,6 +30,12 @@
 
 ```
 
+## 目录样式文件 (index.html)[https://raw.githubusercontent.com/MoeClub/vList/master/index.html]
+```
+https://raw.githubusercontent.com/MoeClub/vList/master/index.html
+
+```
+
 ## 运行
 ```
 # 直接运行
