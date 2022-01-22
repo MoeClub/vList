@@ -27,7 +27,7 @@
     "user": "手机号",
     "passwd": "密码",
     "rootId": "-11",
-    "rootPath": "/189Cloud01"
+    "rootPath": "/189Cloud02"
   }
 ]
 
