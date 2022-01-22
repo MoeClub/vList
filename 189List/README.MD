@@ -1,9 +1,8 @@
 # 189List
 #### A list for `https://cloud.189.cn/`
 
-## config.json
+## 配置文件 `config.json` [单用户]
 ```
-# 单用户
 [
   {
     "user": "手机号",
@@ -12,7 +11,10 @@
   }
 ]
 
-# 多用户
+```
+
+## 配置文件 `config.json` [多用户]
+```
 [
   {
     "user": "手机号",
