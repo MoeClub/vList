@@ -7,7 +7,8 @@
   {
     "user": "手机号",
     "passwd": "密码",
-    "rootId": "-11"
+    "rootId": "-11",
+    "rootPath": "/"
   }
 ]
 
@@ -19,12 +20,14 @@
   {
     "user": "手机号",
     "passwd": "密码",
-    "rootId": "-11"
+    "rootId": "-11",
+    "rootPath": "/189Cloud01"
   },
   {
     "user": "手机号",
     "passwd": "密码",
-    "rootId": "-11"
+    "rootId": "-11",
+    "rootPath": "/189Cloud01"
   }
 ]
 
