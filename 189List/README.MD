@@ -16,8 +16,7 @@
     "user": "手机号",
     "passwd": "密码",
     "rootId": "-11",
-    "rootPath": "/",
-    "authItem": ""
+    "rootPath": "/"
   }
 ]
 
@@ -27,15 +26,13 @@
     "user": "手机号",
     "passwd": "密码",
     "rootId": "-11",
-    "rootPath": "/189Cloud01",
-    "authItem": ""
+    "rootPath": "/189Cloud01"
   },
   {
     "user": "手机号",
     "passwd": "密码",
     "rootId": "-11",
     "rootPath": "/189Cloud02"
-    "authItem": "",
   }
 ]
 
@@ -77,7 +74,7 @@ https://raw.githubusercontent.com/MoeClub/vList/master/index.html
     // 挂载的虚拟路径
     
     "authItem": "abc:123@/Movie|xyz:456@/Private/*"
-    // HTTP 401 加密项, 以 | 为分隔符. 可以 * 结尾匹配路径.
+    // HTTP 401 加密项, 以 | 为分隔符. 可以 * 结尾匹配路径. 路径为去掉挂载虚拟路径后的路径.
     // abc:123@/Movie  当访问 /Cloud189/Movie 时需要提供用户名 abc 和 密码 123, 但 /Cloud189/Movie 下的子项无需提供用户名密码.
     // xyz:456@/Private/*   当访问 /Cloud189/Private 及其子项时需要提供用户名 xyz 和 密码 456.
     
