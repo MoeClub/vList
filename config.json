@@ -1,0 +1,12 @@
+{
+  "WorkFolder": "",
+  "Endpoint": "/",
+  "FolderSize": false,
+  "AuthItem": "",
+  "RedirectItem" : "",
+  "IgnoreFile": "",
+  "IgnoreFolder": "",
+  "HideFile": "",
+  "HideFolder": "",
+  "WebDAV": true
+}
