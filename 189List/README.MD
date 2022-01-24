@@ -43,6 +43,7 @@
 
 
 ## 目录样式文件 [index.html](https://raw.githubusercontent.com/MoeClub/vList/master/index.html)
+##### 可以自定义呈现样式, 编辑单文件 index.html 即可.
 ```
 https://raw.githubusercontent.com/MoeClub/vList/master/index.html
 
