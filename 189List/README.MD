@@ -89,4 +89,34 @@ https://raw.githubusercontent.com/MoeClub/vList/master/index.html
   }
 ]
 
+# 启动参数项
+```
+Usage of ./189List:
+  -bind string
+        Bind Address (default "127.0.0.1")
+  -port string
+        Port (default "5189")
+
+  -c string
+        Config File. (default "config.json")
+  -i string
+        Index File. (default "index.html")
+
+  -sttl int
+        Session Time To Live. (default 14400)
+  -nttl int
+        Folder Time To Live. (default 1800)
+  -ttl int
+        Download Link Time To Live. (default 300)
+
+  -ua string
+        Set UserAgent. (default "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0) Gecko/20100101 Firefox/91.0")
+
+  -webdav
+        WebDAV Support. (default true)
+  -j    JSON Format Output.
+
+  -d    Daemon (Linux Only).
+  -q    Quiet.
+        
 ```
