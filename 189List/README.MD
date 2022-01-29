@@ -1,12 +1,12 @@
 # 189List
 #### A list for `https://cloud.189.cn/`
 #### 天翼网盘列表程序
-- 支持多账户
-- 支持每天自动签到
-- 支持异步缓存目录结构
-- 支持整个目录，单层目录或单文件访问加密
-- 支持展示任意目录，自定义根目录
-- 支持只读挂载到 `PotPlayer(WebDAV)`, `nPlayer(WebDAV)`，`kodi(WebDAV)`
+- 支持添加多账户
+- 支持异步缓存目录结构, 无须等待
+- 支持整个目录, 单层目录或单文件访问加密
+- 支持展示任意目录, 自定义根目录
+- 支持每天自动签到, 获取额外空间奖励
+- 支持只读挂载到 `PotPlayer(WebDAV)`, `nPlayer(WebDAV)`, `kodi(WebDAV)`
 
 ## 配置文件 `config.json`
 ```
