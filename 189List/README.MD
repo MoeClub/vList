@@ -57,6 +57,7 @@ https://raw.githubusercontent.com/MoeClub/vList/master/index.html
 ```
 
 # 配置文件项解释
+#### 注意: `json`文件格式标准中规定最后一行数据没有逗号.
 ```
 [
   {
@@ -73,7 +74,7 @@ https://raw.githubusercontent.com/MoeClub/vList/master/index.html
     "rootPath": "/Cloud189",
     // 挂载的虚拟路径
     
-    "authItem": "abc:123@/Movie|xyz:456@/Private/*"
+    "authItem": "abc:123@/Movie|xyz:456@/Private/*",
     // HTTP 401 加密项, 以 | 为分隔符. 可以 * 结尾匹配路径. 路径为去掉挂载虚拟路径后的路径.
     // abc:123@/Movie  当访问 /Cloud189/Movie 时需要提供用户名 abc 和 密码 123, 但 /Cloud189/Movie 下的子项无需提供用户名密码.
     // xyz:456@/Private/*   当访问 /Cloud189/Private 及其子项时需要提供用户名 xyz 和 密码 456.
@@ -81,7 +82,7 @@ https://raw.githubusercontent.com/MoeClub/vList/master/index.html
     "nodeInterval": 1800,
     // 目录刷新间隔, 最小值: 300
     
-    "linkInterval": 300,
+    "linkInterval": 300
     // 下载链接刷新间隔, 最小值: 60, 最大值 360
     
   }
