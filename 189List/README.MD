@@ -57,7 +57,7 @@ https://raw.githubusercontent.com/MoeClub/vList/master/index.html
 ./189List -bind 0.0.0.0 -port 80 -d
 
 # 以JSON格式输出
-./189List -bind 0.0.0.0 -port 80 -j
+./189List -bind 0.0.0.0 -port 80 -j -icon
 
 # 关闭WebDAV支持
 ./189List -bind 0.0.0.0 -port 80 -webdav=false
