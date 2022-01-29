@@ -6,6 +6,7 @@
 - 支持整个目录, 单层目录或单文件访问加密
 - 支持展示任意目录, 自定义根目录
 - 支持每天自动签到, 获取额外空间奖励
+- 支持内容以 JSON 格式输出, 方便作为后端.
 - 支持只读挂载到 `PotPlayer(WebDAV)`, `nPlayer(WebDAV)`, `kodi(WebDAV)`
 
 ## 配置文件 `config.json`
