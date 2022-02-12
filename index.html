@@ -44,9 +44,6 @@
         currentPath = "{{.CurrentPath}}",
         rawData = "{{.RawData}}",
         $$ = mdui.JQ;
-    if (currentPath === "/") {
-        currentPath = "";
-    }
     let reverse = false,
         pageData = JSON.parse(window.atob(rawData)),
         arrayPath = new Array(),
@@ -116,23 +113,18 @@
         }
         let nav = document.getElementById("path"),
             pathSpan = document.createElement("span"),
-            locPath = currentPath.trim().replace(/^\//, "").replace(/\/$/, "");
+            locPath = ("/" + currentPath.replace(rootPath, "").replace(/^\//, "")).split("/").slice(1),
+            locRoot = rootPath === "/" ? "" : rootPath;
         locArray = new Array('');
         nav.innerHTML = '';
-        if (locPath !== "") {
-            let j = 0;
-            let locPathArr = locPath.split("/"),
-                localHref = "";
-            if (locPathArr.length >= 1) {
-                if (rootPath === "/" + locPathArr[0]) {
-                    j = 1;
-                }
+        let localHref = "";
+        for (let j = 0; j < locPath.length; j++) {
+            if (j === 0 && j === "") {
+                continue;
             }
-            for (; j < locPathArr.length; j++) {
-                localHref += "/" + locPathArr[j];
-                navTemp = `<a class="nav-a" href="//${window.location.host}${localHref}">${locPathArr[j]}</a>`;
-                locArray.push(navTemp)
-            }
+            localHref += "/" + locPath[j];
+            navTemp = `<a class="nav-a" href="//${window.location.host}${locRoot}${localHref}">${locPath[j]}</a>`;
+            locArray.push(navTemp)
         }
         pathSpan.innerHTML = locArray.join("/");
         nav.appendChild(pathSpan);
