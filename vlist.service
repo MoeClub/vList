@@ -1,0 +1,14 @@
+[Unit]
+Description=vList
+After=network-online.target
+After=local-fs.target
+After=dbus.service
+
+[Service]
+Type=simple
+ExecStart=/etc/vList/vList -bind 0.0.0.0 -port 80 -w /mnt -q
+RestartSec=3s
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
