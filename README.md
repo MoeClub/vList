@@ -87,3 +87,13 @@
         proxy_pass http://127.0.0.1:8080;
     }
 ```
+
+# Service
+```
+wget -qO /etc/vList/vlist.service https://github.com/MoeClub/vList/raw/master/vlist.service
+cp -rf "/etc/vList/vlist.service" "/etc/systemd/system/vlist.service"
+systemctl daemon-reload
+systemctl enable vlist.service
+systemctl start vlist.service
+
+```
