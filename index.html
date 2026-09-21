@@ -616,9 +616,8 @@
       }
 
       function escapeHTML(value) {
-        const span = document.createElement('span');
-        span.textContent = String(value);
-        return span.innerHTML;
+        const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return String(value).replace(/[&<>"']/g, character => entities[character]);
       }
 
       function parseDate(value) {
