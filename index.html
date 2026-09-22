@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
-  <title>文件列表</title>
+  <title>vList</title>
   <style>
     :root {
       color-scheme: light;
@@ -16,7 +16,6 @@
       --line: #e7ebf1;
       --accent: #476dff;
       --accent-soft: #edf1ff;
-      --danger: #d14343;
       --shadow: 0 18px 48px rgba(27, 39, 75, .08);
       --radius: 18px;
     }
@@ -31,7 +30,6 @@
       --line: #283248;
       --accent: #7793ff;
       --accent-soft: #222e52;
-      --danger: #ff7777;
       --shadow: 0 20px 56px rgba(0, 0, 0, .28);
     }
 
@@ -51,7 +49,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    button, input, select { font: inherit; }
+    button, input { font: inherit; }
     button, a { -webkit-tap-highlight-color: transparent; }
 
     .shell {
@@ -64,7 +62,6 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
       border: 1px solid var(--line);
       color: var(--text);
       background: var(--surface-solid);
@@ -293,7 +290,6 @@
       min-width: 36px;
       height: 34px;
       padding: 0 10px;
-      white-space: nowrap;
       border-radius: 10px;
       text-decoration: none;
     }
@@ -517,6 +513,7 @@
       'use strict';
 
       const app = document.getElementById('app');
+      const breadcrumbs = document.getElementById('breadcrumbs');
       const listElement = document.getElementById('fileList');
       const searchInput = document.getElementById('searchInput');
       const searchClear = document.getElementById('searchClear');
@@ -527,6 +524,8 @@
       const previewStage = document.getElementById('previewStage');
       const previewTitle = document.getElementById('previewTitle');
       const modalDownload = document.getElementById('modalDownload');
+      const modalClose = document.getElementById('modalClose');
+      const sortButtons = [...document.querySelectorAll('[data-sort]')];
       const rootPath = normalizePath(app.dataset.root || '/');
       const currentPath = normalizePath(app.dataset.current || '/');
       const imageTypes = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'svg', 'bmp', 'ico']);
@@ -537,26 +536,33 @@
         'toml', 'ini', 'conf', 'cfg', 'env', 'properties', 'sh', 'bash', 'zsh', 'fish', 'ps1',
         'bat', 'cmd', 'go', 'py', 'pyw', 'js', 'mjs', 'cjs', 'ts', 'jsx', 'tsx', 'css', 'scss',
         'less', 'html', 'htm', 'vue', 'svelte', 'sql', 'rs', 'c', 'h', 'cc', 'cpp', 'hpp',
-        'java', 'kt', 'kts', 'swift', 'rb', 'php', 'pl', 'lua', 'r', 'dart', 'gradle', 'tex'
+        'java', 'kt', 'kts', 'swift', 'rb', 'php', 'pl', 'lua', 'r', 'dart', 'gradle', 'tex',
+        'hexlic', 'md5', 'sha1', 'sha256', 'sha512'
       ]);
-      const textNames = new Set(['dockerfile', 'makefile', 'license', 'readme', 'changelog', 'hosts']);
+      const textNames = new Set(['dockerfile', 'makefile', 'license', 'readme', 'changelog', 'hosts', 'history']);
+      const previewTypes = new Set(['image', 'video', 'audio', 'pdf', 'text']);
+      const sizePowers = { B: 0, KB: 1, MB: 2, GB: 3, TB: 4, PB: 5, EB: 6 };
+      const nameCollator = new Intl.Collator('zh-CN', { numeric: true, sensitivity: 'base' });
       const maxTextPreviewBytes = 2 * 1024 * 1024;
       let files = [];
+      let filesByUrl = new Map();
       let query = '';
       let sortKey = 'name';
       let sortDirection = 1;
       let previewController = null;
 
+      const icon = (body, size = 21, strokeWidth = 1.8) =>
+        `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${strokeWidth}">${body}</svg>`;
       const icons = {
-        folder: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3.5 7.5h6l2-2h9A1.5 1.5 0 0 1 22 7v10.5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 1.5-2Z"/></svg>',
-        image: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="m4 17 5-5 3 3 2-2 6 5"/></svg>',
-        video: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3V9Z"/></svg>',
-        audio: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>',
-        pdf: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2.5h7l5 5V21H6V2.5Z"/><path d="M13 2.5v5h5M8.5 16h7M8.5 12h4"/></svg>',
-        text: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2.5h7l5 5V21H6V2.5Z"/><path d="M13 2.5v5h5M9 12h6M9 16h6"/></svg>',
-        file: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2.5h7l5 5V21H6V2.5Z"/><path d="M13 2.5v5h5"/></svg>',
-        preview: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>',
-        download: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-5-5 5 5 5-5M5 21h14"/></svg>'
+        folder: icon('<path d="M3.5 7.5h6l2-2h9A1.5 1.5 0 0 1 22 7v10.5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 1.5-2Z"/>'),
+        image: icon('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="m4 17 5-5 3 3 2-2 6 5"/>'),
+        video: icon('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3V9Z"/>'),
+        audio: icon('<path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/>'),
+        pdf: icon('<path d="M6 2.5h7l5 5V21H6V2.5Z"/><path d="M13 2.5v5h5M8.5 16h7M8.5 12h4"/>'),
+        text: icon('<path d="M6 2.5h7l5 5V21H6V2.5Z"/><path d="M13 2.5v5h5M9 12h6M9 16h6"/>'),
+        file: icon('<path d="M6 2.5h7l5 5V21H6V2.5Z"/><path d="M13 2.5v5h5"/>'),
+        preview: icon('<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/>', 16, 2),
+        download: icon('<path d="M12 3v12m-5-5 5 5 5-5M5 21h14"/>', 16, 2)
       };
 
       function normalizePath(value) {
@@ -567,10 +573,7 @@
       function decodeBase64Utf8(value) {
         const binary = atob((value || '').trim());
         const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
-        if (window.TextDecoder) return new TextDecoder('utf-8').decode(bytes);
-        let escaped = '';
-        bytes.forEach(byte => { escaped += '%' + byte.toString(16).padStart(2, '0'); });
-        return decodeURIComponent(escaped);
+        return new TextDecoder('utf-8').decode(bytes);
       }
 
       function safeDecode(value) {
@@ -591,10 +594,6 @@
         if (ext === 'pdf') return 'pdf';
         if (textTypes.has(ext) || textNames.has(file.displayName.toLowerCase())) return 'text';
         return 'file';
-      }
-
-      function isPreviewable(type) {
-        return type === 'image' || type === 'video' || type === 'audio' || type === 'pdf' || type === 'text';
       }
 
       function addDownloadQuery(fileUrl) {
@@ -628,12 +627,10 @@
       function parseSize(value) {
         const match = String(value || '').match(/^([\d.]+)\s*(B|KB|MB|GB|TB|PB|EB)?$/i);
         if (!match) return 0;
-        const powers = { B: 0, KB: 1, MB: 2, GB: 3, TB: 4, PB: 5, EB: 6 };
-        return Number(match[1]) * Math.pow(1024, powers[(match[2] || 'B').toUpperCase()]);
+        return Number(match[1]) * Math.pow(1024, sizePowers[(match[2] || 'B').toUpperCase()]);
       }
 
       function renderBreadcrumbs() {
-        const container = document.getElementById('breadcrumbs');
         const relative = currentPath === '/' ? [] : currentPath.split('/').filter(Boolean);
         const rootSegments = rootPath.split('/').filter(Boolean);
         const nodes = [{ label: '根目录', href: rootPath || '/', root: true }];
@@ -641,13 +638,13 @@
           const href = normalizePath('/' + [...rootSegments, ...relative.slice(0, index + 1)].map(encodeURIComponent).join('/'));
           nodes.push({ label: safeDecode(segment), href });
         });
-        container.replaceChildren();
+        breadcrumbs.replaceChildren();
         nodes.forEach((node, index) => {
           if (index) {
             const separator = document.createElement('span');
             separator.className = 'crumb-separator';
             separator.textContent = '›';
-            container.appendChild(separator);
+            breadcrumbs.appendChild(separator);
           }
           const link = document.createElement('a');
           link.className = node.root ? 'crumb home-link' : 'crumb' + (index === nodes.length - 1 ? ' current' : '');
@@ -659,26 +656,24 @@
           } else {
             link.textContent = node.label;
           }
-          container.appendChild(link);
+          breadcrumbs.appendChild(link);
         });
-        requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; });
+        requestAnimationFrame(() => { breadcrumbs.scrollLeft = breadcrumbs.scrollWidth; });
       }
 
       function rowTemplate(file) {
-        const type = typeOf(file);
+        const type = file.type;
         const name = escapeHTML(file.displayName);
         const href = escapeHTML(file.url);
-        const canPreview = isPreviewable(type);
-        const primaryAction = file.folder ? 'open-folder' : (canPreview ? 'preview' : 'download');
         let actions = '';
-        if (canPreview) {
+        if (file.previewable) {
           actions += `<button class="action-button" type="button" data-action="preview" title="预览" aria-label="预览 ${name}">${icons.preview}</button>`;
         }
         if (!file.folder) {
           actions += `<a class="action-button" href="${escapeHTML(addDownloadQuery(file.url))}" download title="下载" aria-label="下载 ${name}">${icons.download}</a>`;
         }
         return `
-          <article class="file-row" data-url="${href}" data-action="${primaryAction}" tabindex="0">
+          <article class="file-row" data-url="${href}" tabindex="0">
             <div class="file-name-cell">
               <span class="file-icon ${type}" aria-hidden="true">${icons[type]}</span>
               <a class="file-link" href="${href}" data-primary="true">${name}</a>
@@ -694,9 +689,9 @@
         return filtered.sort((left, right) => {
           if (left.folder !== right.folder) return left.folder ? -1 : 1;
           let result = 0;
-          if (sortKey === 'date') result = parseDate(left.date) - parseDate(right.date);
-          else if (sortKey === 'size') result = parseSize(left.size) - parseSize(right.size);
-          else result = left.displayName.localeCompare(right.displayName, 'zh-CN', { numeric: true, sensitivity: 'base' });
+          if (sortKey === 'date') result = left.dateValue - right.dateValue;
+          else if (sortKey === 'size') result = left.sizeValue - right.sizeValue;
+          else result = nameCollator.compare(left.displayName, right.displayName);
           return result * sortDirection;
         });
       }
@@ -739,21 +734,18 @@
       }
 
       function openPreview(file) {
-        const type = typeOf(file);
-        if (!isPreviewable(type)) return;
+        const type = file.type;
+        if (!file.previewable) return;
         if (previewController) previewController.abort();
-        previewController = new AbortController();
-        const controller = previewController;
+        previewController = type === 'text' ? new AbortController() : null;
         previewTitle.textContent = file.displayName;
         modalDownload.href = addDownloadQuery(file.url);
         modalDownload.setAttribute('download', file.displayName);
         previewStage.replaceChildren();
-        previewStage.classList.toggle('text-mode', type === 'text');
-        previewStage.classList.toggle('audio-mode', type === 'audio');
-        previewStage.classList.toggle('pdf-mode', type === 'pdf');
+        previewStage.className = 'preview-stage' + (['text', 'audio', 'pdf'].includes(type) ? ` ${type}-mode` : '');
         modal.classList.add('open');
         document.body.style.overflow = 'hidden';
-        document.getElementById('modalClose').focus();
+        modalClose.focus();
         if (type === 'image') {
           const image = new Image();
           image.alt = file.displayName;
@@ -761,24 +753,18 @@
           image.src = addPreviewQuery(file.url);
           image.addEventListener('error', () => showPreviewError('图片加载失败，仍可使用右上角按钮下载。'));
           previewStage.appendChild(image);
-        } else if (type === 'video') {
-          const video = document.createElement('video');
-          video.controls = true;
-          video.autoplay = true;
-          video.playsInline = true;
-          video.preload = 'metadata';
-          video.src = addPreviewQuery(file.url);
-          video.addEventListener('error', () => showPreviewError('浏览器不支持此视频格式，可使用右上角按钮下载。'));
-          previewStage.appendChild(video);
-        } else if (type === 'audio') {
-          const audio = document.createElement('audio');
-          audio.className = 'audio-preview';
-          audio.controls = true;
-          audio.autoplay = true;
-          audio.preload = 'metadata';
-          audio.src = addPreviewQuery(file.url);
-          audio.addEventListener('error', () => showPreviewError('浏览器不支持此音频格式，可使用右上角按钮下载。'));
-          previewStage.appendChild(audio);
+        } else if (type === 'video' || type === 'audio') {
+          const media = document.createElement(type);
+          if (type === 'video') media.playsInline = true;
+          else media.className = 'audio-preview';
+          media.controls = true;
+          media.autoplay = true;
+          media.preload = 'metadata';
+          media.src = addPreviewQuery(file.url);
+          media.addEventListener('error', () => showPreviewError(
+            `浏览器不支持此${type === 'video' ? '视频' : '音频'}格式，可使用右上角按钮下载。`
+          ));
+          previewStage.appendChild(media);
         } else if (type === 'pdf') {
           const frame = document.createElement('iframe');
           frame.className = 'pdf-preview';
@@ -790,6 +776,7 @@
           loading.className = 'preview-message';
           loading.textContent = '正在读取文本…';
           previewStage.appendChild(loading);
+          const controller = previewController;
           loadTextPreview(file, controller.signal).then(text => {
             if (controller.signal.aborted) return;
             const content = document.createElement('pre');
@@ -826,23 +813,20 @@
           media.load();
         }
         modal.classList.remove('open');
-        previewStage.classList.remove('text-mode', 'audio-mode', 'pdf-mode');
+        previewStage.className = 'preview-stage';
         previewStage.replaceChildren();
         document.body.style.overflow = '';
-      }
-
-      function fileByUrl(value) {
-        return files.find(file => file.url === value);
       }
 
       listElement.addEventListener('click', event => {
         const row = event.target.closest('.file-row');
         if (!row) return;
-        const file = fileByUrl(row.dataset.url);
+        const file = filesByUrl.get(row.dataset.url);
         if (!file) return;
-        const actionButton = event.target.closest('[data-action]');
+        if (event.target.closest('a[download]')) return;
+        const previewButton = event.target.closest('[data-action="preview"]');
         const primaryLink = event.target.closest('[data-primary]');
-        if ((actionButton && actionButton.dataset.action === 'preview') || (primaryLink && isPreviewable(typeOf(file)))) {
+        if (file.previewable && (previewButton || primaryLink || !event.target.closest('a, button'))) {
           event.preventDefault();
           openPreview(file);
         }
@@ -852,11 +836,11 @@
         if (event.key !== 'Enter' && event.key !== ' ') return;
         if (event.target.closest('a, button')) return;
         const row = event.target.closest('.file-row');
-        const file = row && fileByUrl(row.dataset.url);
+        const file = row && filesByUrl.get(row.dataset.url);
         if (!file) return;
         event.preventDefault();
         if (file.folder) window.location.href = file.url;
-        else if (isPreviewable(typeOf(file))) openPreview(file);
+        else if (file.previewable) openPreview(file);
         else window.location.href = addDownloadQuery(file.url);
       });
 
@@ -872,17 +856,17 @@
         searchInput.focus();
       });
 
-      document.querySelectorAll('[data-sort]').forEach(button => {
+      sortButtons.forEach(button => {
         button.addEventListener('click', () => {
           const nextKey = button.dataset.sort;
           sortDirection = sortKey === nextKey ? -sortDirection : 1;
           sortKey = nextKey;
-          document.querySelectorAll('[data-sort]').forEach(item => item.classList.toggle('active', item === button));
+          sortButtons.forEach(item => item.classList.toggle('active', item === button));
           render();
         });
       });
 
-      document.getElementById('modalClose').addEventListener('click', closePreview);
+      modalClose.addEventListener('click', closePreview);
       modal.addEventListener('click', event => { if (event.target === modal) closePreview(); });
       document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && modal.classList.contains('open')) closePreview();
@@ -900,8 +884,18 @@
         const parsed = JSON.parse(decodeBase64Utf8(app.dataset.files));
         files = (Array.isArray(parsed) ? parsed : []).map(file => {
           const displayName = safeDecode(file.name || '');
-          return { ...file, displayName, searchName: displayName.toLocaleLowerCase('zh-CN') };
+          const normalized = {
+            ...file,
+            displayName,
+            searchName: displayName.toLocaleLowerCase('zh-CN'),
+            dateValue: parseDate(file.date),
+            sizeValue: parseSize(file.size)
+          };
+          normalized.type = typeOf(normalized);
+          normalized.previewable = previewTypes.has(normalized.type);
+          return normalized;
         });
+        filesByUrl = new Map(files.map(file => [file.url, file]));
         renderBreadcrumbs();
         render();
       } catch (error) {
